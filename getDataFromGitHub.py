@@ -96,9 +96,6 @@ for subquery in range(1, len(SUBQUERIES)+1):
 			#Update repositories counter
 			countOfRepositories = countOfRepositories + 1
 
-		print "DONE for current page!"	
-	print "DONE for current subquery!"
-
 	#A delay between different subqueries
 	if (subquery < len(SUBQUERIES)):
 		print "Sleeping " + str(DELAY_BETWEEN_QUERYS) + " seconds before the new query ..."
