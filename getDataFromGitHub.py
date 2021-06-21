@@ -10,13 +10,19 @@
 # To get more than 1,000 elements, the main query should be splitted in multiple subqueries
 # using different time windows through the constant SUBQUERIES (it is a list of subqueries).
 #
-# As example, constant values are set to get the repositories on GitHub of the user 'rsain'.
-
+# Reference from: https://docs.github.com/en/rest/guides/getting-started-with-the-rest-api
+# Authentication
+# Unauthenticated clients can make 60 requests per hour.
+# To get more requests per hour, we'll need to authenticate.
+# In fact, doing anything interesting with the GitHub API requires authentication.
+# CURRENT_TOKEN = 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
 
 #############
 # Libraries #
 #############
 import json
+import traceback
+
 import wget
 import time
 import csv
@@ -31,20 +37,22 @@ URL = "https://api.github.com/search/repositories?q="  # The basic URL to use th
 # The personalized query (for instance, to get repositories from user 'rsain')
 QUERY = "topic:machine-learning"
 # Different sub-queries if you need to collect more than 1000 elements
-SUB_QUERIES = ["+created%3A<%3D2021-05-31+created%3A>%3D2014-01-01"]
+SUB_QUERIES = ["+created%3A2021-06-01"]  # can put a range like `created%3A2021-04-01..2021-04-30`
 PARAMETERS = "&per_page=100"  # Additional parameters for the query (by default 100 items per page)
 DELAY_BETWEEN_QUERIES = 10  # The time to wait between different queries to GitHub (to avoid be banned)
 OUTPUT_FOLDER = "/Users/chaiyong/Docs/Teaching/2021/GitHub-Crawler/downloads/"  # Folder where ZIP files will be stored
 OUTPUT_CSV_FILE = "/Users/chaiyong/Docs/Teaching/2021/GitHub-Crawler/repositories.csv"  # Path to the CSV file generated as output
-
+USERNAME = 'cragkhit'
+TOKEN = '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'
 
 #############
 # Functions #
 #############
 
-def getUrl(url):
+
+def get_url(url, username, token):
     """ Given a URL it returns its body """
-    response = requests.get(url)
+    response = requests.get(url, auth=(username, token))
     return response.json()
 
 ########
@@ -65,8 +73,9 @@ for subquery in range(1, len(SUB_QUERIES) + 1):
     # Obtain the number of pages for the current subquery (by default each page contains 100 items)
     url = URL + QUERY + str(SUB_QUERIES[subquery - 1]) + PARAMETERS
     print(url)
-    data = json.loads(json.dumps(getUrl(url)))
+    data = json.loads(json.dumps(get_url(url, USERNAME, TOKEN)))
     numberOfPages = int(math.ceil(data['total_count'] / 100.0))
+    print("Total = " + str(data['total_count']))
     print("No. of pages = " + str(numberOfPages))
 
     # Results are in different pages
@@ -75,7 +84,7 @@ for subquery in range(1, len(SUB_QUERIES) + 1):
         url = URL + QUERY + str(SUB_QUERIES[subquery - 1]) + PARAMETERS + "&page=" + str(currentPage)
         print(url)
 
-        data = json.loads(json.dumps(getUrl(url)))
+        data = json.loads(json.dumps(get_url(url, USERNAME, TOKEN)))
         # Iteration over all the repositories in the current json content page
         try:
             for item in data['items']:
@@ -92,14 +101,16 @@ for subquery in range(1, len(SUB_QUERIES) + 1):
         #         # fileName = item['full_name'].replace("/", "#") + ".zip"
         #         # wget.download(fileToDownload, out=OUTPUT_FOLDER + fileName)
         #
-        #         # Update repositories counter
-        #         count_of_repos = count_of_repos + 1
+                # Update repositories counter
+                count_of_repos = count_of_repos + 1
         except:
             print("Error: " + user + ", " + repository + "," + clone_url)
+            # printing stack trace
+            traceback.print_exc()
     # A delay between different sub-queries
     if subquery < len(SUB_QUERIES):
         print("Sleeping " + str(DELAY_BETWEEN_QUERIES) + " seconds before the new query ...")
-        # time.sleep(DELAY_BETWEEN_QUERIES)
+        time.sleep(DELAY_BETWEEN_QUERIES)
 
 print("DONE! " + str(count_of_repos) + " repositories have been processed.")
 csv_file.close()
