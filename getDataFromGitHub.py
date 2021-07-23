@@ -33,8 +33,8 @@ SUB_QUERIES = ["+created%3A<%3D2021-03-31",
               "+created%3A>%3D2014-01-01"]  # Different sub-queries if you need to collect more than 1000 elements
 PARAMETERS = "&per_page=100"  # Additional parameters for the query (by default 100 items per page)
 DELAY_BETWEEN_QUERIES = 10  # The time to wait between different queries to GitHub (to avoid be banned)
-OUTPUT_FOLDER = "/Users/chaiyong/Desktop/GitHub-Crawler/"  # Folder where ZIP files will be stored
-OUTPUT_CSV_FILE = "/Users/chaiyong/Desktop/GitHub-Crawler/repositories.csv"  # Path to the CSV file generated as output
+OUTPUT_FOLDER = "/your/folder/GitHub-Crawler/"  # Folder where ZIP files will be stored
+OUTPUT_CSV_FILE = "/your/folder/GitHub-Crawler/repositories.csv"  # Path to the CSV file generated as output
 
 
 #############
