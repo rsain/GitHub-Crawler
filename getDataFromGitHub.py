@@ -66,6 +66,7 @@ for subquery in range(1, len(SUB_QUERIES) + 1):
     data = json.loads(json.dumps(getUrl(url)))
     numberOfPages = int(math.ceil(data['total_count'] / 100.0))
     print("No. of pages = " + numberOfPages)
+    print("No. of pages = " + str(numberOfPages))
 
     # Results are in different pages
     for currentPage in range(1, numberOfPages + 1):
@@ -77,13 +78,18 @@ for subquery in range(1, len(SUB_QUERIES) + 1):
             # Obtain user and repository names
             user = item['owner']['login']
             repository = item['name']
-            repositories.writerow([user, repository])
             # Download the zip file of the current project
             print("Downloading repository '%s' from user '%s' ..." % (repository, user))
             url = item['clone_url']
-            fileToDownload = url[0:len(url) - 4] + "/archive/master.zip"
+            fileToDownload = url[0:len(url) - 4] + "/archive/refs/heads/master.zip"
             fileName = item['full_name'].replace("/", "#") + ".zip"
-            wget.download(fileToDownload, out=OUTPUT_FOLDER + fileName)
+            try:
+                wget.download(fileToDownload, out=OUTPUT_FOLDER + fileName)
+                repositories.writerow([user, repository, url, "downloaded"])
+            except Exception as e:
+                print("Could not download file {}".format(fileToDownload))
+                print(e)
+                repositories.writerow([user, repository, url, "error when downloading"])
             # Update repositories counter
             countOfRepositories = countOfRepositories + 1
 
