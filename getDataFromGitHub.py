@@ -65,7 +65,7 @@ for subquery in range(1, len(SUB_QUERIES) + 1):
     url = URL + QUERY + str(SUB_QUERIES[subquery - 1]) + PARAMETERS
     data = json.loads(json.dumps(getUrl(url)))
     numberOfPages = int(math.ceil(data['total_count'] / 100.0))
-    print("No. of pages = " + numberOfPages)
+    print("No. of pages = " + str(numberOfPages))
     print("No. of pages = " + str(numberOfPages))
 
     # Results are in different pages
